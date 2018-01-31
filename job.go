@@ -62,6 +62,9 @@ func fieldsN(str string, n int) (flds []string) {
 			buf.WriteRune(r)
 		}
 	}
+	if buf.Len() > 0 {
+		flds = append(flds, buf.String())
+	}
 	return flds
 }
 

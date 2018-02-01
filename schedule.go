@@ -1,6 +1,7 @@
 package crontab
 
 type Schedule struct {
+	Raw       string
 	Minute    *ScheduleEntity
 	Hour      *ScheduleEntity
 	Day       *ScheduleEntity
@@ -24,7 +25,8 @@ const (
 	ScheduleDayOfWeek
 )
 
-func NewSchedule(min, hour, day, month, dayOfWeek string) (sche *Schedule) {
+func NewSchedule(raw string, min, hour, day, month, dayOfWeek string) (sche *Schedule, err error) {
+	sche.Raw = raw
 	sche.Minute = &ScheduleEntity{
 		Raw:  min,
 		Type: ScheduleMinute,
@@ -45,5 +47,5 @@ func NewSchedule(min, hour, day, month, dayOfWeek string) (sche *Schedule) {
 		Raw:  dayOfWeek,
 		Type: ScheduleDayOfWeek,
 	}
-	return sche
+	return sche, nil
 }

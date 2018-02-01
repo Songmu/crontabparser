@@ -7,10 +7,29 @@ import (
 	"unicode"
 )
 
+type errors []error
+
+func (ers errors) Error() string {
+	strs := make([]string, len(ers))
+	for i, err := range ers {
+		strs[i] = err.Error()
+	}
+	return strings.Join(strs, "\n")
+}
+
+func (ers errors) err() error {
+	if len(ers) == 0 {
+		return nil
+	}
+	return ers
+}
+
 type Job struct {
 	raw     string
 	line    int
 	hasUser bool
+	env     map[string]string
+	errors  errors
 
 	User     string
 	Command  string
@@ -22,7 +41,7 @@ func (jo *Job) Type() Type {
 }
 
 func (jo *Job) Err() error {
-	return nil
+	return jo.errors.err()
 }
 
 func (jo *Job) Raw() string {
@@ -33,6 +52,17 @@ func (jo *Job) Line() int {
 	return jo.line
 }
 
+func (jo *Job) Env() map[string]string {
+	return jo.env
+}
+
+func (jo *Job) setError(err error) {
+	if err == nil {
+		return
+	}
+	jo.errors = append(jo.errors, err)
+}
+
 var definitions = map[string][5]string{
 	"@yearly":   [5]string{"0", "0", "1", "1", "*"},
 	"@annually": [5]string{"0", "0", "1", "1", "*"},
@@ -40,6 +70,7 @@ var definitions = map[string][5]string{
 	"@weekly":   [5]string{"0", "0", "*", "*", "0"},
 	"@daily":    [5]string{"0", "0", "*", "*", "*"},
 	"@hourly":   [5]string{"0", "*", "*", "*", "*"},
+	"@reboot":   [5]string{"0", "0", "0", "0", "0"}, // XXX
 }
 
 func fieldsN(str string, n int) (flds []string) {
@@ -69,7 +100,7 @@ func fieldsN(str string, n int) (flds []string) {
 }
 
 func (jo *Job) parse() error {
-	if strings.HasPrefix(jo.raw, "@") {
+	if strings.HasPrefix(strings.TrimSpace(jo.raw), "@") {
 		var flds []string
 		if jo.hasUser {
 			flds = fieldsN(jo.raw, 3)
@@ -89,7 +120,7 @@ func (jo *Job) parse() error {
 		if !ok {
 			return fmt.Errorf("invalid definition: %q", flds[0])
 		}
-		jo.Schedule = NewSchedule(def[0], def[1], def[2], def[3], def[4])
+		jo.Schedule, _ = NewSchedule(flds[0], def[0], def[1], def[2], def[3], def[4])
 	} else {
 		var flds []string
 		if jo.hasUser {
@@ -106,7 +137,7 @@ func (jo *Job) parse() error {
 			}
 			jo.Command = flds[5]
 		}
-		jo.Schedule = NewSchedule(flds[0], flds[1], flds[2], flds[3], flds[4])
+		jo.Schedule, _ = NewSchedule(strings.Join(flds[:4], " "), flds[0], flds[1], flds[2], flds[3], flds[4])
 	}
 	return nil
 }

@@ -43,22 +43,29 @@ func (env *Env) Val() string {
 	return env.val
 }
 
-func (env *Env) parse() error {
+func (env *Env) parse() (err error) {
 	kv := strings.SplitN(env.raw, "=", 2)
 	if len(kv) == 2 {
-		env.key = dequote(kv[0])
-		env.val = dequote(kv[1])
+		env.key, err = dequote(kv[0])
+		if err != nil {
+			// XXX set error?
+			return err
+		}
+		env.val, err = dequote(kv[1])
+		if err != nil {
+			return err
+		}
 		return nil
 	}
 	return fmt.Errorf("invalid env entry: %q", env.raw)
 }
 
-func dequote(stuff string) string {
+func dequote(stuff string) (string, error) {
 	stuff = strings.TrimSpace(stuff)
 	if strings.HasPrefix(stuff, `"`) && strings.HasSuffix(stuff, `"`) {
 		stuff = strings.Trim(stuff, `"`)
 	} else if strings.HasPrefix(stuff, `'`) && strings.HasSuffix(stuff, `'`) {
 		stuff = strings.Trim(stuff, `'`)
 	}
-	return stuff
+	return stuff, nil
 }

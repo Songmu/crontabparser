@@ -27,22 +27,23 @@ const (
 
 type Crontab struct {
 	Entries []Entry
+	env     map[string]string
 }
 
 func Parse(rdr io.Reader, hasUser bool) (*Crontab, error) {
-	ct := &Crontab{}
+	ct := &Crontab{env: make(map[string]string)}
 	lineNum := 0
 	scr := bufio.NewScanner(rdr)
 	for scr.Scan() {
 		lineNum++
-		ct.Entries = append(ct.Entries, parseLine(scr.Text(), lineNum, hasUser))
+		ct.Entries = append(ct.Entries, ct.parseLine(scr.Text(), lineNum, hasUser))
 	}
 	return ct, scr.Err()
 }
 
-var jobReg = regexp.MustCompile(`^(?:@|\*|[0-9])`)
+var jobReg = regexp.MustCompile(`^\s*(?:@|\*|[0-9])`)
 
-func parseLine(line string, lineNum int, hasUser bool) Entry {
+func (ct *Crontab) parseLine(line string, lineNum int, hasUser bool) Entry {
 	switch {
 	case strings.HasPrefix(line, "#"):
 		return &Comment{
@@ -55,22 +56,39 @@ func parseLine(line string, lineNum int, hasUser bool) Entry {
 			line: lineNum,
 		}
 	case jobReg.MatchString(line):
-		return &Job{
+		j := &Job{
 			raw:     line,
 			line:    lineNum,
 			hasUser: hasUser,
+			env:     cloneMap(ct.env),
 		}
+		err := j.parse()
+		if err != nil {
+			j.setError(err)
+		}
+		return j
 	case strings.Contains(line, "="):
-		return &Env{
+		env := &Env{
 			raw:  line,
 			line: lineNum,
 		}
+		env.parse() // error handling
+		ct.env[env.Key()] = env.Val()
+		return env
 	default:
 		return &Error{
 			raw:  line,
 			line: lineNum,
 		}
 	}
+}
+
+func cloneMap(orig map[string]string) map[string]string {
+	newMap := make(map[string]string, len(orig))
+	for k, v := range orig {
+		newMap[k] = v
+	}
+	return newMap
 }
 
 func (ct *Crontab) Jobs() (jobs []*Job) {

@@ -25,6 +25,31 @@ const (
 	ScheduleDayOfWeek
 )
 
+type entityParam struct {
+	Range   [2]int
+	Aliases []string
+}
+
+var entityParams = map[ScheduleType]entityParam{
+	ScheduleMinute: {
+		Range: [2]int{0, 59},
+	},
+	ScheduleHour: {
+		Range: [2]int{0, 23},
+	},
+	ScheduleDay: {
+		Range: [2]int{1, 31},
+	},
+	ScheduleMonth: {
+		Range:   [2]int{1, 12},
+		Aliases: []string{"jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec"},
+	},
+	ScheduleDayOfWeek: {
+		Range:   [2]int{0, 7},
+		Aliases: []string{"sun", "mon", "tue", "wed", "thu", "fri", "sat"},
+	},
+}
+
 func NewSchedule(raw string, min, hour, day, month, dayOfWeek string) (sche *Schedule, err error) {
 	sche.Raw = raw
 	sche.Minute = &ScheduleEntity{

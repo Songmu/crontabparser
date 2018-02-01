@@ -9,6 +9,7 @@ type Env struct {
 	raw  string
 	line int
 
+	ers errors
 	key string
 	val string
 }
@@ -18,7 +19,7 @@ func (env *Env) Type() Type {
 }
 
 func (env *Env) Err() error {
-	return nil
+	return env.ers.err()
 }
 
 func (env *Env) Raw() string {
@@ -46,26 +47,42 @@ func (env *Env) Val() string {
 func (env *Env) parse() (err error) {
 	kv := strings.SplitN(env.raw, "=", 2)
 	if len(kv) == 2 {
-		env.key, err = dequote(kv[0])
+		k, err := dequote(kv[0])
 		if err != nil {
-			// XXX set error?
-			return err
+			env.ers = append(env.ers, err)
 		}
-		env.val, err = dequote(kv[1])
+		v, err := dequote(kv[1])
 		if err != nil {
-			return err
+			env.ers = append(env.ers, err)
 		}
-		return nil
+		if env.Err() == nil {
+			env.key = k
+			env.val = v
+		}
+		return env.Err()
 	}
-	return fmt.Errorf("invalid env entry: %q", env.raw)
+	env.ers = append(env.ers, fmt.Errorf("invalid env entry: %q", env.raw))
+	return env.Err()
 }
 
 func dequote(stuff string) (string, error) {
-	stuff = strings.TrimSpace(stuff)
-	if strings.HasPrefix(stuff, `"`) && strings.HasSuffix(stuff, `"`) {
-		stuff = strings.Trim(stuff, `"`)
-	} else if strings.HasPrefix(stuff, `'`) && strings.HasSuffix(stuff, `'`) {
-		stuff = strings.Trim(stuff, `'`)
+	ret := strings.TrimSpace(stuff)
+	if strings.HasPrefix(ret, `"`) {
+		if !strings.HasSuffix(ret, `"`) {
+			return "", fmt.Errorf("invalid env element: %q", stuff)
+		}
+		ret = ret[1 : len(ret)-1]
+		if strings.Contains(ret, `"`) {
+			return "", fmt.Errorf("invalid env element: %q", stuff)
+		}
+	} else if strings.HasPrefix(ret, `'`) {
+		if !strings.HasSuffix(ret, `'`) {
+			return "", fmt.Errorf("invalid env element: %q", stuff)
+		}
+		ret = ret[1 : len(ret)-1]
+		if strings.Contains(ret, `'`) {
+			return "", fmt.Errorf("invalid env element: %q", stuff)
+		}
 	}
-	return stuff, nil
+	return ret, nil
 }

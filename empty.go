@@ -1,4 +1,4 @@
-package crontab
+package checron
 
 type Empty struct {
 	raw  string

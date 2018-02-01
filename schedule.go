@@ -1,4 +1,4 @@
-package crontab
+package checron
 
 type Schedule struct {
 	Raw       string

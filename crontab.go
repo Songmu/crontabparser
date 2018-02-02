@@ -18,7 +18,7 @@ type Entry interface {
 type Type int
 
 const (
-	TypeError Type = iota
+	TypeInvalid Type = iota
 	TypeJob
 	TypeComment
 	TypeEmpty
@@ -76,7 +76,7 @@ func (ct *Crontab) parseLine(line string, lineNum int, hasUser bool) Entry {
 		ct.env[env.Key()] = env.Val()
 		return env
 	default:
-		return &Error{
+		return &Invalid{
 			raw:  line,
 			line: lineNum,
 		}

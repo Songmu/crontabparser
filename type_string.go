@@ -4,9 +4,9 @@ package checron
 
 import "strconv"
 
-const _Type_name = "ErrorJobCommentEmptyEnv"
+const _Type_name = "InvalidJobCommentEmptyEnv"
 
-var _Type_index = [...]uint8{0, 5, 8, 15, 20, 23}
+var _Type_index = [...]uint8{0, 7, 10, 17, 22, 25}
 
 func (i Type) String() string {
 	if i < 0 || i >= Type(len(_Type_index)-1) {

@@ -72,8 +72,10 @@ func (ct *Crontab) parseLine(line string, lineNum int, hasUser bool) Entry {
 			raw:  line,
 			line: lineNum,
 		}
-		env.parse() // error handling
-		ct.env[env.Key()] = env.Val()
+		err := env.parse()
+		if err == nil {
+			ct.env[env.Key()] = env.Val()
+		}
 		return env
 	default:
 		return &Invalid{

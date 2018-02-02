@@ -90,6 +90,15 @@ func NewSchedule(raw string, min, hour, day, month, dayOfWeek string) (sche *Sch
 	return sche, ers.err()
 }
 
+func (se *ScheduleEntity) Match(num int) bool {
+	for _, i := range se.expanded {
+		if num == i {
+			return true
+		}
+	}
+	return false
+}
+
 func NewScheduleEntity(raw string, st ScheduleType) (*ScheduleEntity, error) {
 	se := &ScheduleEntity{
 		Raw:  raw,

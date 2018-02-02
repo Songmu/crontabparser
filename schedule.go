@@ -1,5 +1,9 @@
 package checron
 
+import (
+	"time"
+)
+
 type Schedule struct {
 	Raw       string
 	Minute    *ScheduleEntity
@@ -33,4 +37,16 @@ func NewSchedule(raw string, min, hour, day, month, dayOfWeek string) (sche *Sch
 		ers = append(ers, err)
 	}
 	return sche, ers.err()
+}
+
+func (sche *Schedule) Match(t time.Time) bool {
+	if !sche.Minute.Match(t.Minute()) || !sche.Hour.Match(t.Hour()) || !sche.Month.Match(t.Month()) {
+		return false
+	}
+	if sche.DayOfWeek.Raw != "*" {
+		if sche.DayOfWeek.Match(int(t.Weekday())) {
+			return true
+		}
+	}
+	return sche.Day.Match(t.Day())
 }

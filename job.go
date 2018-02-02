@@ -3,6 +3,7 @@ package checron
 import (
 	"bytes"
 	"fmt"
+	"regexp"
 	"strings"
 	"unicode"
 )
@@ -98,6 +99,8 @@ func fieldsN(str string, n int) (flds []string) {
 	}
 	return flds
 }
+
+var scheduleReg = regexp.MustCompile(`^(@\w+|(?:\S+\s+){5})(.*)$`)
 
 func (jo *Job) parse() error {
 	if strings.HasPrefix(strings.TrimSpace(jo.raw), "@") {

@@ -40,7 +40,7 @@ func NewSchedule(raw string, min, hour, day, month, dayOfWeek string) (sche *Sch
 }
 
 func (sche *Schedule) Match(t time.Time) bool {
-	if !sche.Minute.Match(t.Minute()) || !sche.Hour.Match(t.Hour()) || !sche.Month.Match(t.Month()) {
+	if !sche.Minute.Match(t.Minute()) || !sche.Hour.Match(t.Hour()) || !sche.Month.Match(int(t.Month())) {
 		return false
 	}
 	if sche.DayOfWeek.Raw != "*" {

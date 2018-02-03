@@ -3,6 +3,7 @@ package checron
 import (
 	"bytes"
 	"fmt"
+	"io"
 	"regexp"
 	"strings"
 	"unicode"
@@ -15,6 +16,7 @@ type Job struct {
 
 	user     string
 	command  string
+	stdin    string
 	schedule *Schedule
 
 	err error
@@ -38,6 +40,14 @@ func (jo *Job) User() string {
 // Command of the job
 func (jo *Job) Command() string {
 	return jo.command
+}
+
+// Stdin returns input
+func (jo *Job) Stdin() io.Reader {
+	if jo.stdin == "" {
+		return nil
+	}
+	return strings.NewReader(jo.stdin)
 }
 
 // Schedule of the job
@@ -105,11 +115,52 @@ func (jo *Job) parse(hasUser bool) (err error) {
 				return fmt.Errorf("field: %q is invalid", jo.raw)
 			}
 			jo.user = flds[0]
-			jo.command = flds[1]
+			jo.command, jo.stdin = parseCommand(flds[1])
 			return nil
 		}
-		jo.command = m[2]
+		jo.command, jo.stdin = parseCommand(m[2])
 		return nil
 	}
 	return fmt.Errorf("field: %q is invalid", jo.raw)
+}
+
+func parseCommand(rawCmd string) (cmd, stdin string) {
+	cmdBuf := &bytes.Buffer{}
+	stdinBuf := &bytes.Buffer{}
+	var endedCmd, escaped bool
+	out := func() *bytes.Buffer {
+		if endedCmd {
+			return stdinBuf
+		}
+		return cmdBuf
+	}
+	for _, chr := range rawCmd {
+		if escaped {
+			if chr != '%' {
+				out().WriteRune('\\')
+			}
+			out().WriteRune(chr)
+			escaped = false
+			continue
+		}
+
+		if chr == '\\' {
+			escaped = true
+			continue
+		}
+
+		if chr == '%' {
+			if !endedCmd {
+				endedCmd = true
+				continue
+			}
+			out().WriteString("\n")
+			continue
+		}
+		out().WriteRune(chr)
+	}
+	if escaped {
+		out().WriteRune('\\')
+	}
+	return cmdBuf.String(), stdinBuf.String()
 }

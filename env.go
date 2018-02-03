@@ -6,8 +6,7 @@ import (
 )
 
 type Env struct {
-	raw  string
-	line int
+	raw string
 
 	ers errors
 	key string
@@ -24,10 +23,6 @@ func (env *Env) Err() error {
 
 func (env *Env) Raw() string {
 	return env.raw
-}
-
-func (env *Env) Line() int {
-	return env.line
 }
 
 func (env *Env) Key() string {

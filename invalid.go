@@ -3,8 +3,7 @@ package checron
 import "fmt"
 
 type Invalid struct {
-	raw  string
-	line int
+	raw string
 }
 
 func (er *Invalid) Type() Type {
@@ -17,8 +16,4 @@ func (er *Invalid) Err() error {
 
 func (er *Invalid) Raw() string {
 	return er.raw
-}
-
-func (er *Invalid) Line() int {
-	return er.line
 }

@@ -27,7 +27,6 @@ func (ers errors) err() error {
 
 type Job struct {
 	raw     string
-	line    int
 	hasUser bool
 	env     map[string]string
 	errors  errors
@@ -59,10 +58,6 @@ func (jo *Job) Err() error {
 
 func (jo *Job) Raw() string {
 	return jo.raw
-}
-
-func (jo *Job) Line() int {
-	return jo.line
 }
 
 func (jo *Job) Env() map[string]string {

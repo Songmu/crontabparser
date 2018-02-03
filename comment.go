@@ -1,8 +1,7 @@
 package checron
 
 type Comment struct {
-	raw  string
-	line int
+	raw string
 }
 
 func (co *Comment) Type() Type {
@@ -15,8 +14,4 @@ func (co *Comment) Err() error {
 
 func (co *Comment) Raw() string {
 	return co.raw
-}
-
-func (co *Comment) Line() int {
-	return co.line
 }

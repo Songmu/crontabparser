@@ -11,7 +11,6 @@ type Entry interface {
 	Type() Type
 	Err() error
 	Raw() string
-	Line() int
 }
 
 //go:generate stringer -type=Type -trimprefix Type
@@ -26,39 +25,34 @@ const (
 )
 
 type Crontab struct {
-	Entries []Entry
+	entries []Entry
 	env     map[string]string
 }
 
 func Parse(rdr io.Reader, hasUser bool) (*Crontab, error) {
 	ct := &Crontab{env: make(map[string]string)}
-	lineNum := 0
 	scr := bufio.NewScanner(rdr)
 	for scr.Scan() {
-		lineNum++
-		ct.Entries = append(ct.Entries, ct.parseLine(scr.Text(), lineNum, hasUser))
+		ct.entries = append(ct.entries, ct.parseLine(scr.Text(), hasUser))
 	}
 	return ct, scr.Err()
 }
 
 var jobReg = regexp.MustCompile(`^\s*(?:@|\*|[0-9])`)
 
-func (ct *Crontab) parseLine(line string, lineNum int, hasUser bool) Entry {
+func (ct *Crontab) parseLine(line string, hasUser bool) Entry {
 	switch {
 	case strings.HasPrefix(line, "#"):
 		return &Comment{
-			raw:  line,
-			line: lineNum,
+			raw: line,
 		}
 	case strings.TrimSpace(line) == "":
 		return &Empty{
-			raw:  line,
-			line: lineNum,
+			raw: line,
 		}
 	case jobReg.MatchString(line):
 		j := &Job{
 			raw:     line,
-			line:    lineNum,
 			hasUser: hasUser,
 			env:     cloneMap(ct.env),
 		}
@@ -69,8 +63,7 @@ func (ct *Crontab) parseLine(line string, lineNum int, hasUser bool) Entry {
 		return j
 	case strings.Contains(line, "="):
 		env := &Env{
-			raw:  line,
-			line: lineNum,
+			raw: line,
 		}
 		err := env.parse()
 		if err == nil {
@@ -79,22 +72,17 @@ func (ct *Crontab) parseLine(line string, lineNum int, hasUser bool) Entry {
 		return env
 	default:
 		return &Invalid{
-			raw:  line,
-			line: lineNum,
+			raw: line,
 		}
 	}
 }
 
-func cloneMap(orig map[string]string) map[string]string {
-	newMap := make(map[string]string, len(orig))
-	for k, v := range orig {
-		newMap[k] = v
-	}
-	return newMap
+func (ct *Crontab) Entries() []Entry {
+	return ct.entries
 }
 
 func (ct *Crontab) Jobs() (jobs []*Job) {
-	for _, ent := range ct.Entries {
+	for _, ent := range ct.entries {
 		if j, ok := ent.(*Job); ok {
 			jobs = append(jobs, j)
 		}
@@ -103,10 +91,18 @@ func (ct *Crontab) Jobs() (jobs []*Job) {
 }
 
 func (ct *Crontab) Valid() bool {
-	for _, ent := range ct.Entries {
+	for _, ent := range ct.entries {
 		if ent.Err() != nil {
 			return false
 		}
 	}
 	return true
+}
+
+func cloneMap(orig map[string]string) map[string]string {
+	newMap := make(map[string]string, len(orig))
+	for k, v := range orig {
+		newMap[k] = v
+	}
+	return newMap
 }

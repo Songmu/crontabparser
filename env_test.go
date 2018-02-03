@@ -29,15 +29,21 @@ func TestNewEnv(t *testing.T) {
 		},
 		{
 			Name:  "quoted and needs trimming",
-			Input: ` "hoge" = 'fuga' `,
+			Input: ` " hoge" = ' fuga  ' `,
 
 			Valid: true,
-			Key:   "hoge",
-			Val:   "fuga",
+			Key:   " hoge",
+			Val:   " fuga  ",
 		},
 		{
 			Name:  "invalid",
 			Input: `'ho'ge'='fuga'`,
+
+			Valid: false,
+		},
+		{
+			Name:  "invalid val",
+			Input: `'hoge'="fuga`,
 
 			Valid: false,
 		},
@@ -54,6 +60,9 @@ func TestNewEnv(t *testing.T) {
 			}
 			if env.Err() != nil {
 				t.Errorf("error should be nil but: %s", env.Err())
+			}
+			if env.Raw() != tc.Input {
+				t.Errorf("invalid raw. out=%q, expect=%q", env.Raw(), tc.Input)
 			}
 			if tc.Key != env.Key() {
 				t.Errorf("invalid key. out=%q, expect=%q", env.Key(), tc.Key)

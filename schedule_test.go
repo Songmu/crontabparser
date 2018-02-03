@@ -93,3 +93,46 @@ func TestParseSchedule(t *testing.T) {
 		})
 	}
 }
+
+func TestWarnings(t *testing.T) {
+	testCases := []struct {
+		Name  string
+		Input string
+
+		WarningNum int
+	}{
+		{
+			Name:       "no error",
+			Input:      "*/1 * * * *",
+			WarningNum: 0,
+		},
+		{
+			Name:       "asterisk minutes",
+			Input:      "* * * * *",
+			WarningNum: 1,
+		},
+		{
+			Name:       "both specified day and day-of-week",
+			Input:      "*/1 * 13 * Fri",
+			WarningNum: 1,
+		},
+		{
+			Name:       "2 warnings",
+			Input:      "* * 13 * Fri",
+			WarningNum: 2,
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.Name, func(t *testing.T) {
+			sche, err := ParseSchedule(tc.Input)
+			if err != nil {
+				t.Errorf("error should be nil but: %s", err)
+			}
+			warningNum := len(sche.Warnings())
+			if tc.WarningNum != warningNum {
+				t.Errorf("output num is missmatched. out=%d, expedted=%d", warningNum, tc.WarningNum)
+			}
+		})
+	}
+}

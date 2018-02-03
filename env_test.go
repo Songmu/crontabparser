@@ -47,6 +47,12 @@ func TestNewEnv(t *testing.T) {
 
 			Valid: false,
 		},
+		{
+			Name:  "no equal mark",
+			Input: `blah`,
+
+			Valid: false,
+		},
 	}
 
 	for _, tc := range testCases {

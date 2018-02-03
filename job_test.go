@@ -126,6 +126,11 @@ func TestParseCommand(t *testing.T) {
 			Command: `/path/to/cmd > /path/to/log.$(date +%Y%m%d) 2>&1`,
 		},
 		{
+			Name:    "ended with backslash",
+			Input:   `/path/to/cmd \`,
+			Command: `/path/to/cmd \`,
+		},
+		{
 			Name:    "It's 10pm",
 			Input:   `mail -s "It's 10pm" joe%Joe,%%Where are your kids?%`,
 			Command: `mail -s "It's 10pm" joe`,

@@ -101,6 +101,12 @@ HOGE=FUGA
 			},
 			Valid: false,
 		},
+		{
+			Name:    "invalid line",
+			Input:   `invalid invalid`,
+			Expects: []Type{TypeInvalid},
+			Valid:   false,
+		},
 	}
 
 	for _, tc := range testCases {

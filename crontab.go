@@ -80,7 +80,7 @@ func (ct *Crontab) parseLine(line string, hasUser bool) Entry {
 	case strings.TrimSpace(line) == "":
 		return &Empty{raw: line}
 	case jobReg.MatchString(line):
-		return newJob(line, hasUser, cloneMap(ct.env))
+		return NewJob(line, hasUser, cloneMap(ct.env))
 	case strings.Contains(line, "="):
 		env := newEnv(line)
 		if env.Err() == nil {

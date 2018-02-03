@@ -19,7 +19,7 @@ type Job struct {
 	err error
 }
 
-func newJob(raw string, hasUser bool, env map[string]string) *Job {
+func NewJob(raw string, hasUser bool, env map[string]string) *Job {
 	jo := &Job{
 		raw: raw,
 		env: env,

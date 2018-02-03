@@ -53,6 +53,9 @@ func TestParseJob(t *testing.T) {
 	for _, tc := range testCases {
 		t.Run(tc.Name, func(t *testing.T) {
 			j := ParseJob(tc.Input, tc.HasUser, nil)
+			if tc.Input != j.Raw() {
+				t.Errorf("invalid raw input. out=%q, expect=%q", j.Raw(), tc.Input)
+			}
 			if !tc.Valid {
 				if j.Err() == nil {
 					t.Errorf("error should be occurred but nil: %#v", j)

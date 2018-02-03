@@ -28,6 +28,9 @@ func (se *ScheduleEntity) Expanded() []int {
 }
 
 func (se *ScheduleEntity) Match(num int) bool {
+	if se == nil {
+		return false
+	}
 	for _, i := range se.expanded {
 		if num == i {
 			return true

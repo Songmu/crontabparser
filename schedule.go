@@ -23,6 +23,8 @@ type Schedule struct {
 	day       *ScheduleEntity
 	month     *ScheduleEntity
 	dayOfWeek *ScheduleEntity
+
+	warnings []string
 }
 
 func (sche *Schedule) Raw() string {
@@ -105,4 +107,17 @@ func (sche *Schedule) Match(t time.Time) bool {
 		}
 	}
 	return sche.day.Match(t.Day())
+}
+
+func (sche *Schedule) Warnings() []string {
+	if sche.warnings == nil {
+		sche.warnings = []string{}
+		if sche.minute.raw == "*" {
+			sche.warnings = append(sche.warnings, `Specifying '*' for minutes means EVERY MINUTES. You really want to do that and to remove this warning, specify '*/1' explicitly.`)
+		}
+		if sche.dayOfWeek.raw != "*" && sche.day.raw != "*" {
+			sche.warnings = append(sche.warnings, `Both specifying 'day_of_week' and 'day' field causes unexpected behavior. You should seperate job entries.`)
+		}
+	}
+	return sche.warnings
 }

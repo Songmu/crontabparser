@@ -64,7 +64,7 @@ var entityParams = map[ScheduleType]entityParam{
 	},
 	ScheduleMonth: {
 		Range:   [2]int{1, 12},
-		Aliases: []string{"jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec"},
+		Aliases: []string{"", "jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec"},
 	},
 	ScheduleDayOfWeek: {
 		Range:   [2]int{0, 7},
@@ -91,6 +91,9 @@ func (se *ScheduleEntity) init() error {
 	}
 	entity := strings.ToLower(se.raw)
 	for i, v := range ep.Aliases {
+		if v == "" {
+			continue
+		}
 		entity = strings.Replace(entity, v, fmt.Sprintf("%d", i), -1)
 	}
 	var expanded []int
@@ -105,10 +108,12 @@ func (se *ScheduleEntity) init() error {
 				return fmt.Errorf("invalid increments: %q in %q", stuffs[1], se.raw)
 			}
 			incr := int(increments)
+			incrCounter := 0
 			for i := rng[0]; i <= rng[1]; i++ {
-				if i%incr == 0 {
+				if incrCounter%incr == 0 {
 					expanded = append(expanded, i)
 				}
+				incrCounter++
 			}
 		} else {
 			if n, err := strconv.ParseUint(item, 10, 64); err == nil {
@@ -132,12 +137,12 @@ func (se *ScheduleEntity) init() error {
 	if se.typ == ScheduleDayOfWeek {
 		hasSun := false
 		for _, v := range expanded {
-			if v == 0 || v == 7 {
+			if v == 7 {
 				hasSun = true
 			}
 		}
 		if hasSun {
-			expanded = append(expanded, 0, 7)
+			expanded = append(expanded, 0)
 		}
 	}
 

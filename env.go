@@ -37,17 +37,11 @@ func (env *Env) Raw() string {
 
 // Key of env
 func (env *Env) Key() string {
-	if env.key == "" {
-		env.parse()
-	}
 	return env.key
 }
 
 // Val of env
 func (env *Env) Val() string {
-	if env.val == "" {
-		env.parse()
-	}
 	return env.val
 }
 

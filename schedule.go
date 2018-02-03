@@ -58,25 +58,28 @@ func newSchedule(raw string, min, hour, day, month, dayOfWeek string) (*Schedule
 	sche := &Schedule{}
 	sche.raw = raw
 	var ers errors
+	wrap := func(err error, st scheduleType) error {
+		return fmt.Errorf("bad %s: %s", st, err)
+	}
 	sche.minute, err = newScheduleEntity(min, scheduleMinute)
 	if err != nil {
-		ers = append(ers, err)
+		ers = append(ers, wrap(err, scheduleMinute))
 	}
 	sche.hour, err = newScheduleEntity(hour, scheduleHour)
 	if err != nil {
-		ers = append(ers, err)
+		ers = append(ers, wrap(err, scheduleHour))
 	}
 	sche.day, err = newScheduleEntity(day, scheduleDay)
 	if err != nil {
-		ers = append(ers, err)
+		ers = append(ers, wrap(err, scheduleDay))
 	}
 	sche.month, err = newScheduleEntity(month, scheduleMonth)
 	if err != nil {
-		ers = append(ers, err)
+		ers = append(ers, wrap(err, scheduleMonth))
 	}
 	sche.dayOfWeek, err = newScheduleEntity(dayOfWeek, scheduleDayOfWeek)
 	if err != nil {
-		ers = append(ers, err)
+		ers = append(ers, wrap(err, scheduleDayOfWeek))
 	}
 	return sche, ers.err()
 }

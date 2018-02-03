@@ -42,7 +42,7 @@ if job.Schedule().Match(time.Date(2018, 12, 25, 0, 0, 0, 0, time.Local)) {
 ```go
 sche, _ := checron.ParseSchedule("0 0 25 12 *")
 if sche.Match(time.Date(2018, 12, 25, 0, 0, 0, 0, time.Local)) {
-    fmt.Printl(":tada:")
+    fmt.Println(":tada:")
 }
 ```
 

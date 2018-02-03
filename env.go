@@ -13,6 +13,12 @@ type Env struct {
 	val string
 }
 
+func newEnv(raw string) *Env {
+	env := &Env{raw: raw}
+	env.parse()
+	return env
+}
+
 func (env *Env) Type() Type {
 	return TypeEnv
 }
@@ -39,7 +45,7 @@ func (env *Env) Val() string {
 	return env.val
 }
 
-func (env *Env) parse() (err error) {
+func (env *Env) parse() {
 	kv := strings.SplitN(env.raw, "=", 2)
 	if len(kv) == 2 {
 		k, err := dequote(kv[0])
@@ -54,10 +60,9 @@ func (env *Env) parse() (err error) {
 			env.key = k
 			env.val = v
 		}
-		return env.Err()
+		return
 	}
 	env.ers = append(env.ers, fmt.Errorf("invalid env entry: %q", env.raw))
-	return env.Err()
 }
 
 func dequote(stuff string) (string, error) {

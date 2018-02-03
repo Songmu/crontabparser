@@ -43,37 +43,19 @@ var jobReg = regexp.MustCompile(`^\s*(?:@|\*|[0-9])`)
 func (ct *Crontab) parseLine(line string, hasUser bool) Entry {
 	switch {
 	case strings.HasPrefix(line, "#"):
-		return &Comment{
-			raw: line,
-		}
+		return &Comment{raw: line}
 	case strings.TrimSpace(line) == "":
-		return &Empty{
-			raw: line,
-		}
+		return &Empty{raw: line}
 	case jobReg.MatchString(line):
-		j := &Job{
-			raw:     line,
-			hasUser: hasUser,
-			env:     cloneMap(ct.env),
-		}
-		err := j.parse()
-		if err != nil {
-			j.setError(err)
-		}
-		return j
+		return newJob(line, hasUser, cloneMap(ct.env))
 	case strings.Contains(line, "="):
-		env := &Env{
-			raw: line,
-		}
-		err := env.parse()
-		if err == nil {
+		env := newEnv(line)
+		if env.Err() == nil {
 			ct.env[env.Key()] = env.Val()
 		}
 		return env
 	default:
-		return &Invalid{
-			raw: line,
-		}
+		return &Invalid{raw: line}
 	}
 }
 

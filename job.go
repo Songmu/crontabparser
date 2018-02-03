@@ -8,32 +8,24 @@ import (
 	"unicode"
 )
 
-type errors []error
-
-func (ers errors) Error() string {
-	strs := make([]string, len(ers))
-	for i, err := range ers {
-		strs[i] = err.Error()
-	}
-	return strings.Join(strs, "\n")
-}
-
-func (ers errors) err() error {
-	if len(ers) == 0 {
-		return nil
-	}
-	return ers
-}
-
 type Job struct {
-	raw     string
-	hasUser bool
-	env     map[string]string
-	errors  errors
+	raw string
+	env map[string]string
 
 	user     string
 	command  string
 	schedule *Schedule
+
+	err error
+}
+
+func newJob(raw string, hasUser bool, env map[string]string) *Job {
+	jo := &Job{
+		raw: raw,
+		env: env,
+	}
+	jo.err = jo.parse(hasUser)
+	return jo
 }
 
 func (jo *Job) User() string {
@@ -53,7 +45,7 @@ func (jo *Job) Type() Type {
 }
 
 func (jo *Job) Err() error {
-	return jo.errors.err()
+	return jo.err
 }
 
 func (jo *Job) Raw() string {
@@ -62,13 +54,6 @@ func (jo *Job) Raw() string {
 
 func (jo *Job) Env() map[string]string {
 	return jo.env
-}
-
-func (jo *Job) setError(err error) {
-	if err == nil {
-		return
-	}
-	jo.errors = append(jo.errors, err)
 }
 
 func fieldsN(str string, n int) (flds []string) {
@@ -99,13 +84,13 @@ func fieldsN(str string, n int) (flds []string) {
 
 var scheduleReg = regexp.MustCompile(`^(@\w+|(?:\S+\s+){5})(.*)$`)
 
-func (jo *Job) parse() (err error) {
+func (jo *Job) parse(hasUser bool) (err error) {
 	if m := scheduleReg.FindStringSubmatch(strings.TrimSpace(jo.raw)); len(m) == 3 {
 		jo.schedule, err = ParseSchedule(strings.TrimSpace(m[1]))
 		if err != nil {
 			return err
 		}
-		if jo.hasUser {
+		if hasUser {
 			flds := fieldsN(m[2], 2)
 			if len(flds) != 2 {
 				return fmt.Errorf("field: %q is invalid", jo.raw)

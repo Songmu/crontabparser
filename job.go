@@ -56,6 +56,8 @@ func (jo *Job) Env() map[string]string {
 	return jo.env
 }
 
+// TODO Warnings
+
 func fieldsN(str string, n int) (flds []string) {
 	str = strings.TrimSpace(str)
 	offset := 0

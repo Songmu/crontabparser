@@ -154,7 +154,7 @@ func (se *ScheduleEntity) init() error {
 	return nil
 }
 
-var rangeReg = regexp.MustCompile(`^(\d{,2})-(\d{,2})$`)
+var rangeReg = regexp.MustCompile(`^(\d{1,2})-(\d{1,2})$`)
 
 func parseRange(item string, rng [2]int) (ret [2]int, err error) {
 	if item == "*" {

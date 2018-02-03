@@ -5,6 +5,84 @@ import (
 	"testing"
 )
 
+func TestNewJob(t *testing.T) {
+	testCases := []struct {
+		Name    string
+		Input   string
+		HasUser bool
+
+		Valid    bool
+		User     string
+		Command  string
+		Schedule [5]string
+	}{
+		{
+			Name:  "all asterisk",
+			Input: " * * * * * perl",
+
+			Valid:    true,
+			Command:  "perl",
+			Schedule: [5]string{"*", "*", "*", "*", "*"},
+		},
+		{
+			Name:  "normal",
+			Input: `*/15 1-11/4 1 1 1 perl -E 'say "Hello"'`,
+
+			Valid:    true,
+			Command:  `perl -E 'say "Hello"'`,
+			Schedule: [5]string{"*/15", "1-11/4", "1", "1", "1"},
+		},
+		{
+			Name:    "hourly has user",
+			Input:   `@hourly songmu perl -E`,
+			HasUser: true,
+
+			Valid:    true,
+			Command:  `perl -E`,
+			User:     "songmu",
+			Schedule: definitions["@hourly"],
+		},
+		{
+			Name:  "all asterisk",
+			Input: "* * * *  perl",
+
+			Valid: false,
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.Name, func(t *testing.T) {
+			j := NewJob(tc.Input, tc.HasUser, nil)
+			if !tc.Valid {
+				if j.Err() == nil {
+					t.Errorf("error should be occurred but nil: %#v", j)
+				}
+				return
+			}
+			if j.Err() != nil {
+				t.Errorf("error should be nil but: %s", j.Err())
+			}
+
+			if tc.User != j.User() {
+				t.Errorf("invalid user. out=%q, expect=%q", j.User(), tc.User)
+			}
+			if tc.Command != j.Command() {
+				t.Errorf("invalid command. out=%q, expect=%q", j.Command(), tc.Command)
+			}
+			outSche := [5]string{
+				j.Schedule().Minute().Raw(),
+				j.Schedule().Hour().Raw(),
+				j.Schedule().Day().Raw(),
+				j.Schedule().Month().Raw(),
+				j.Schedule().DayOfWeek().Raw(),
+			}
+			if !reflect.DeepEqual(outSche, tc.Schedule) {
+				t.Errorf("invalid schedule.\n   out: %v\nexpect: %v", outSche, tc.Schedule)
+			}
+		})
+	}
+}
+
 func TestFieldsN(t *testing.T) {
 	testCases := []struct {
 		Name   string

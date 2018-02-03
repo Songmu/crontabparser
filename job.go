@@ -1,45 +1,68 @@
-package crontab
+package checron
 
 import (
 	"bytes"
 	"fmt"
+	"regexp"
 	"strings"
 	"unicode"
 )
 
+// Job entry in crontab
 type Job struct {
-	raw     string
-	line    int
-	hasUser bool
+	raw string
+	env map[string]string
 
-	User     string
-	Command  string
-	Schedule *Schedule
+	user     string
+	command  string
+	schedule *Schedule
+
+	err error
 }
 
+// ParseJob parses job line and returns the *Job
+func ParseJob(raw string, hasUser bool, env map[string]string) *Job {
+	jo := &Job{
+		raw: raw,
+		env: env,
+	}
+	jo.err = jo.parse(hasUser)
+	return jo
+}
+
+// User of the job
+func (jo *Job) User() string {
+	return jo.user
+}
+
+// Command of the job
+func (jo *Job) Command() string {
+	return jo.command
+}
+
+// Schedule of the job
+func (jo *Job) Schedule() *Schedule {
+	return jo.schedule
+}
+
+// Type of the job
 func (jo *Job) Type() Type {
 	return TypeJob
 }
 
+// Err of the job
 func (jo *Job) Err() error {
-	return nil
+	return jo.err
 }
 
+// Raw content of the job
 func (jo *Job) Raw() string {
 	return jo.raw
 }
 
-func (jo *Job) Line() int {
-	return jo.line
-}
-
-var definitions = map[string][5]string{
-	"@yearly":   [5]string{"0", "0", "1", "1", "*"},
-	"@annually": [5]string{"0", "0", "1", "1", "*"},
-	"@monthly":  [5]string{"0", "0", "1", "*", "*"},
-	"@weekly":   [5]string{"0", "0", "*", "*", "0"},
-	"@daily":    [5]string{"0", "0", "*", "*", "*"},
-	"@hourly":   [5]string{"0", "*", "*", "*", "*"},
+// Env of the job
+func (jo *Job) Env() map[string]string {
+	return jo.env
 }
 
 func fieldsN(str string, n int) (flds []string) {
@@ -68,45 +91,25 @@ func fieldsN(str string, n int) (flds []string) {
 	return flds
 }
 
-func (jo *Job) parse() error {
-	if strings.HasPrefix(jo.raw, "@") {
-		var flds []string
-		if jo.hasUser {
-			flds = fieldsN(jo.raw, 3)
-			if len(flds) != 3 {
-				return fmt.Errorf("field: %q is invalid", jo.raw)
-			}
-			jo.User = flds[1]
-			jo.Command = flds[2]
-		} else {
-			flds = fieldsN(jo.raw, 2)
+var scheduleReg = regexp.MustCompile(`^(@\w+|(?:\S+\s+){5})(.*)$`)
+
+func (jo *Job) parse(hasUser bool) (err error) {
+	if m := scheduleReg.FindStringSubmatch(strings.TrimSpace(jo.raw)); len(m) == 3 {
+		jo.schedule, err = ParseSchedule(strings.TrimSpace(m[1]))
+		if err != nil {
+			return err
+		}
+		if hasUser {
+			flds := fieldsN(m[2], 2)
 			if len(flds) != 2 {
 				return fmt.Errorf("field: %q is invalid", jo.raw)
 			}
-			jo.Command = flds[1]
+			jo.user = flds[0]
+			jo.command = flds[1]
+			return nil
 		}
-		def, ok := definitions[flds[0]]
-		if !ok {
-			return fmt.Errorf("invalid definition: %q", flds[0])
-		}
-		jo.Schedule = NewSchedule(def[0], def[1], def[2], def[3], def[4])
-	} else {
-		var flds []string
-		if jo.hasUser {
-			flds = fieldsN(jo.raw, 7)
-			if len(flds) != 7 {
-				return fmt.Errorf("field: %q is invalid", jo.raw)
-			}
-			jo.User = flds[5]
-			jo.Command = flds[6]
-		} else {
-			flds = fieldsN(jo.raw, 6)
-			if len(flds) != 6 {
-				return fmt.Errorf("field: %q is invalid", jo.raw)
-			}
-			jo.Command = flds[5]
-		}
-		jo.Schedule = NewSchedule(flds[0], flds[1], flds[2], flds[3], flds[4])
+		jo.command = m[2]
+		return nil
 	}
-	return nil
+	return fmt.Errorf("field: %q is invalid", jo.raw)
 }

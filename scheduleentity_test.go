@@ -95,6 +95,11 @@ func TestNewScheduleEntity(t *testing.T) {
 			Input: "mon-Tuo",
 			Type:  scheduleDayOfWeek,
 		},
+		{
+			Name:  "hour: invalid step",
+			Input: "1-10/N",
+			Type:  scheduleHour,
+		},
 	}
 	for _, tc := range invalidTestCases {
 		t.Run(tc.Name, func(t *testing.T) {

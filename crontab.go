@@ -9,15 +9,18 @@ import (
 	"strings"
 )
 
+// Entry in crontab
 type Entry interface {
 	Type() Type
 	Err() error
 	Raw() string
 }
 
+// Type of cron entry
 //go:generate stringer -type=Type -trimprefix Type
 type Type int
 
+// Types constraints
 const (
 	TypeInvalid Type = iota
 	TypeJob
@@ -26,6 +29,7 @@ const (
 	TypeEnv
 )
 
+// Crontab represents crontab
 type Crontab struct {
 	raw     string
 	entries []Entry
@@ -34,6 +38,7 @@ type Crontab struct {
 	errors errors
 }
 
+// Parse crontab
 func Parse(rdr io.Reader, hasUser bool) (*Crontab, error) {
 	buf := &bytes.Buffer{}
 	ct := &Crontab{env: make(map[string]string)}
@@ -47,14 +52,17 @@ func Parse(rdr io.Reader, hasUser bool) (*Crontab, error) {
 	return ct, scr.Err()
 }
 
+// Raw content of crontab
 func (ct *Crontab) Raw() string {
 	return ct.raw
 }
 
+// Entries returns cron entries
 func (ct *Crontab) Entries() []Entry {
 	return ct.entries
 }
 
+// Jobs returns jobs in crontab
 func (ct *Crontab) Jobs() (jobs []*Job) {
 	for _, ent := range ct.entries {
 		if j, ok := ent.(*Job); ok {
@@ -64,6 +72,7 @@ func (ct *Crontab) Jobs() (jobs []*Job) {
 	return jobs
 }
 
+// Err returns error in crontab if error exists
 func (ct *Crontab) Err() error {
 	if ct.errors == nil {
 		ct.errors = []error{}
@@ -85,7 +94,7 @@ func (ct *Crontab) parseLine(line string, hasUser bool) Entry {
 	case strings.TrimSpace(line) == "":
 		return &Empty{raw: line}
 	case jobReg.MatchString(line):
-		return NewJob(line, hasUser, cloneMap(ct.env))
+		return ParseJob(line, hasUser, cloneMap(ct.env))
 	case strings.Contains(line, "="):
 		env := newEnv(line)
 		if env.Err() == nil {

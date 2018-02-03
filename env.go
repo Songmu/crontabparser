@@ -5,6 +5,7 @@ import (
 	"strings"
 )
 
+// Env cron entry
 type Env struct {
 	raw string
 
@@ -19,18 +20,22 @@ func newEnv(raw string) *Env {
 	return env
 }
 
+// Type returns TypeEnv
 func (env *Env) Type() Type {
 	return TypeEnv
 }
 
+// Err returns error if error
 func (env *Env) Err() error {
 	return env.ers.err()
 }
 
+// Raw returns raw contents of line
 func (env *Env) Raw() string {
 	return env.raw
 }
 
+// Key of env
 func (env *Env) Key() string {
 	if env.key == "" {
 		env.parse()
@@ -38,6 +43,7 @@ func (env *Env) Key() string {
 	return env.key
 }
 
+// Val of env
 func (env *Env) Val() string {
 	if env.val == "" {
 		env.parse()

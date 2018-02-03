@@ -8,6 +8,7 @@ import (
 	"unicode"
 )
 
+// Job entry in crontab
 type Job struct {
 	raw string
 	env map[string]string
@@ -19,7 +20,8 @@ type Job struct {
 	err error
 }
 
-func NewJob(raw string, hasUser bool, env map[string]string) *Job {
+// ParseJob parses job line and returns the *Job
+func ParseJob(raw string, hasUser bool, env map[string]string) *Job {
 	jo := &Job{
 		raw: raw,
 		env: env,
@@ -28,30 +30,37 @@ func NewJob(raw string, hasUser bool, env map[string]string) *Job {
 	return jo
 }
 
+// User of the job
 func (jo *Job) User() string {
 	return jo.user
 }
 
+// Command of the job
 func (jo *Job) Command() string {
 	return jo.command
 }
 
+// Schedule of the job
 func (jo *Job) Schedule() *Schedule {
 	return jo.schedule
 }
 
+// Type of the job
 func (jo *Job) Type() Type {
 	return TypeJob
 }
 
+// Err of the job
 func (jo *Job) Err() error {
 	return jo.err
 }
 
+// Raw content of the job
 func (jo *Job) Raw() string {
 	return jo.raw
 }
 
+// Env of the job
 func (jo *Job) Env() map[string]string {
 	return jo.env
 }

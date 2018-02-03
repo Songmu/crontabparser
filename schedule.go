@@ -16,6 +16,7 @@ var definitions = map[string][5]string{
 	"@reboot":   [5]string{"0", "0", "0", "0", "0"}, // XXX
 }
 
+// Schedule cron shedule
 type Schedule struct {
 	raw string
 
@@ -28,10 +29,12 @@ type Schedule struct {
 	warnings []string
 }
 
+// Raw content of cron schedule
 func (sche *Schedule) Raw() string {
 	return sche.raw
 }
 
+// ParseSchedule parses cron schedule notation
 func ParseSchedule(raw string) (sche *Schedule, err error) {
 	if strings.HasPrefix(raw, "@") {
 		def, ok := definitions[raw]
@@ -78,6 +81,7 @@ func newSchedule(raw string, min, hour, day, month, dayOfWeek string) (*Schedule
 	return sche, ers.err()
 }
 
+// Match tests if the specified time matches the shedule or not
 func (sche *Schedule) Match(t time.Time) bool {
 	if !sche.minute.Match(t.Minute()) || !sche.hour.Match(t.Hour()) || !sche.month.Match(int(t.Month())) {
 		return false
@@ -90,6 +94,7 @@ func (sche *Schedule) Match(t time.Time) bool {
 	return sche.day.Match(t.Day())
 }
 
+// Warnings returns warnings in schedule
 func (sche *Schedule) Warnings() []string {
 	if sche.warnings == nil {
 		sche.warnings = []string{}

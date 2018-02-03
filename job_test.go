@@ -5,7 +5,7 @@ import (
 	"testing"
 )
 
-func TestNewJob(t *testing.T) {
+func TestParseJob(t *testing.T) {
 	testCases := []struct {
 		Name    string
 		Input   string
@@ -52,7 +52,7 @@ func TestNewJob(t *testing.T) {
 
 	for _, tc := range testCases {
 		t.Run(tc.Name, func(t *testing.T) {
-			j := NewJob(tc.Input, tc.HasUser, nil)
+			j := ParseJob(tc.Input, tc.HasUser, nil)
 			if !tc.Valid {
 				if j.Err() == nil {
 					t.Errorf("error should be occurred but nil: %#v", j)

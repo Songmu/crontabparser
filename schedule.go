@@ -67,26 +67,28 @@ func ParseSchedule(raw string) (sche *Schedule, err error) {
 	return newSchedule(raw, flds[0], flds[1], flds[2], flds[3], flds[4])
 }
 
-func newSchedule(raw string, min, hour, day, month, dayOfWeek string) (sche *Schedule, err error) {
+func newSchedule(raw string, min, hour, day, month, dayOfWeek string) (*Schedule, error) {
+	var err error
+	sche := &Schedule{}
 	sche.raw = raw
 	var ers errors
-	sche.minute, err = NewScheduleEntity(min, ScheduleMinute)
+	sche.minute, err = newScheduleEntity(min, ScheduleMinute)
 	if err != nil {
 		ers = append(ers, err)
 	}
-	sche.hour, err = NewScheduleEntity(hour, ScheduleHour)
+	sche.hour, err = newScheduleEntity(hour, ScheduleHour)
 	if err != nil {
 		ers = append(ers, err)
 	}
-	sche.day, err = NewScheduleEntity(day, ScheduleDay)
+	sche.day, err = newScheduleEntity(day, ScheduleDay)
 	if err != nil {
 		ers = append(ers, err)
 	}
-	sche.month, err = NewScheduleEntity(month, ScheduleMonth)
+	sche.month, err = newScheduleEntity(month, ScheduleMonth)
 	if err != nil {
 		ers = append(ers, err)
 	}
-	sche.dayOfWeek, err = NewScheduleEntity(dayOfWeek, ScheduleDayOfWeek)
+	sche.dayOfWeek, err = newScheduleEntity(dayOfWeek, ScheduleDayOfWeek)
 	if err != nil {
 		ers = append(ers, err)
 	}

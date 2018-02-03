@@ -72,7 +72,7 @@ var entityParams = map[ScheduleType]entityParam{
 	},
 }
 
-func NewScheduleEntity(raw string, st ScheduleType) (*ScheduleEntity, error) {
+func newScheduleEntity(raw string, st ScheduleType) (*ScheduleEntity, error) {
 	se := &ScheduleEntity{
 		raw: raw,
 		typ: st,
@@ -98,11 +98,11 @@ func (se *ScheduleEntity) init() error {
 		if stuffs := strings.SplitN(item, "/", 2); len(stuffs) == 2 {
 			rng, err := parseRange(stuffs[0], ep.Range)
 			if err != nil {
-				fmt.Errorf("invalid entity: %s, %s", se.raw, err)
+				return fmt.Errorf("invalid entity: %s, %s", se.raw, err)
 			}
 			increments, err := strconv.ParseUint(stuffs[1], 10, 64)
 			if err != nil || increments == 0 {
-				fmt.Errorf("invalid increments: %q in %q", stuffs[1], se.raw)
+				return fmt.Errorf("invalid increments: %q in %q", stuffs[1], se.raw)
 			}
 			incr := int(increments)
 			for i := rng[0]; i <= rng[1]; i++ {
@@ -120,7 +120,7 @@ func (se *ScheduleEntity) init() error {
 			} else {
 				rng, err := parseRange(item, ep.Range)
 				if err != nil {
-					fmt.Errorf("invalid entity: %s, %s", se.raw, err)
+					return fmt.Errorf("invalid entity: %s, %s", se.raw, err)
 				}
 				for i := rng[0]; i <= rng[1]; i++ {
 					expanded = append(expanded, i)

@@ -95,8 +95,8 @@ func (jo *Job) parse(hasUser bool) (err error) {
 			if len(flds) != 2 {
 				return fmt.Errorf("field: %q is invalid", jo.raw)
 			}
-			jo.user = flds[1]
-			jo.command = flds[2]
+			jo.user = flds[0]
+			jo.command = flds[1]
 			return nil
 		}
 		jo.command = m[2]

@@ -31,9 +31,18 @@ for _, job := range crontab.Jobs() {
 ### Parse job and check if the shedule mathes the time or not
 
 ```go
-job, _ := checron.ParseJob("0 0 25 12 * echo 'Happy Holidays!'")
+job, _ := checron.ParseJob("0 0 25 12 * echo 'Happy Holidays!'", false, nil)
 if job.Schedule().Match(time.Date(2018, 12, 25, 0, 0, 0, 0, time.Local)) {
-    fmt.Println(":tada:")
+    exec.Command("sh", "-c", job.Command())
+}
+```
+
+### Parse schedule
+
+```go
+sche, _ := checron.ParseSchedule("0 0 25 12 *")
+if sche.Match(time.Date(2018, 12, 25, 0, 0, 0, 0, time.Local)) {
+    fmt.Printl(":tada:")
 }
 ```
 

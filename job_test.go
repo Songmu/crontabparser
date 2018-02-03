@@ -107,3 +107,40 @@ func TestFieldsN(t *testing.T) {
 		})
 	}
 }
+
+func TestParseCommand(t *testing.T) {
+	testCases := []struct {
+		Name  string
+		Input string
+
+		Command, Stdin string
+	}{
+		{
+			Name:    "normal",
+			Input:   `perl -E "say 'Hello'"`,
+			Command: `perl -E "say 'Hello'"`,
+		},
+		{
+			Name:    "escaped percent",
+			Input:   `/path/to/cmd > /path/to/log.$(date +\%Y\%m\%d) 2>&1`,
+			Command: `/path/to/cmd > /path/to/log.$(date +%Y%m%d) 2>&1`,
+		},
+		{
+			Name:    "It's 10pm",
+			Input:   `mail -s "It's 10pm" joe%Joe,%%Where are your kids?%`,
+			Command: `mail -s "It's 10pm" joe`,
+			Stdin:   "Joe,\n\nWhere are your kids?\n",
+		},
+	}
+	for _, tc := range testCases {
+		t.Run(tc.Name, func(t *testing.T) {
+			cmd, in := parseCommand(tc.Input)
+			if cmd != tc.Command {
+				t.Errorf("invalid command: out=%s, expect=%s", cmd, tc.Command)
+			}
+			if in != tc.Stdin {
+				t.Errorf("invalid stdin: out=%s, expect=%s", in, tc.Stdin)
+			}
+		})
+	}
+}

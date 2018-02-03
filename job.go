@@ -32,9 +32,21 @@ type Job struct {
 	env     map[string]string
 	errors  errors
 
-	User     string
-	Command  string
-	Schedule *Schedule
+	user     string
+	command  string
+	schedule *Schedule
+}
+
+func (jo *Job) User() string {
+	return jo.user
+}
+
+func (jo *Job) Command() string {
+	return jo.command
+}
+
+func (jo *Job) Schedule() *Schedule {
+	return jo.schedule
 }
 
 func (jo *Job) Type() Type {
@@ -94,7 +106,7 @@ var scheduleReg = regexp.MustCompile(`^(@\w+|(?:\S+\s+){5})(.*)$`)
 
 func (jo *Job) parse() (err error) {
 	if m := scheduleReg.FindStringSubmatch(strings.TrimSpace(jo.raw)); len(m) == 3 {
-		jo.Schedule, err = ParseSchedule(strings.TrimSpace(m[1]))
+		jo.schedule, err = ParseSchedule(strings.TrimSpace(m[1]))
 		if err != nil {
 			return err
 		}
@@ -103,11 +115,11 @@ func (jo *Job) parse() (err error) {
 			if len(flds) != 2 {
 				return fmt.Errorf("field: %q is invalid", jo.raw)
 			}
-			jo.User = flds[1]
-			jo.Command = flds[2]
+			jo.user = flds[1]
+			jo.command = flds[2]
 			return nil
 		}
-		jo.Command = m[2]
+		jo.command = m[2]
 		return nil
 	}
 	return fmt.Errorf("field: %q is invalid", jo.raw)

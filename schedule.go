@@ -17,12 +17,36 @@ var definitions = map[string][5]string{
 }
 
 type Schedule struct {
-	Raw       string
-	Minute    *ScheduleEntity
-	Hour      *ScheduleEntity
-	Day       *ScheduleEntity
-	Month     *ScheduleEntity
-	DayOfWeek *ScheduleEntity
+	raw       string
+	minute    *ScheduleEntity
+	hour      *ScheduleEntity
+	day       *ScheduleEntity
+	month     *ScheduleEntity
+	dayOfWeek *ScheduleEntity
+}
+
+func (sche *Schedule) Raw() string {
+	return sche.raw
+}
+
+func (sche *Schedule) Minute() *ScheduleEntity {
+	return sche.minute
+}
+
+func (sche *Schedule) Hour() *ScheduleEntity {
+	return sche.hour
+}
+
+func (sche *Schedule) Day() *ScheduleEntity {
+	return sche.day
+}
+
+func (sche *Schedule) Month() *ScheduleEntity {
+	return sche.month
+}
+
+func (sche *Schedule) DayOfWeek() *ScheduleEntity {
+	return sche.dayOfWeek
 }
 
 func ParseSchedule(raw string) (sche *Schedule, err error) {
@@ -44,25 +68,25 @@ func ParseSchedule(raw string) (sche *Schedule, err error) {
 }
 
 func newSchedule(raw string, min, hour, day, month, dayOfWeek string) (sche *Schedule, err error) {
-	sche.Raw = raw
+	sche.raw = raw
 	var ers errors
-	sche.Minute, err = NewScheduleEntity(min, ScheduleMinute)
+	sche.minute, err = NewScheduleEntity(min, ScheduleMinute)
 	if err != nil {
 		ers = append(ers, err)
 	}
-	sche.Hour, err = NewScheduleEntity(hour, ScheduleHour)
+	sche.hour, err = NewScheduleEntity(hour, ScheduleHour)
 	if err != nil {
 		ers = append(ers, err)
 	}
-	sche.Day, err = NewScheduleEntity(day, ScheduleDay)
+	sche.day, err = NewScheduleEntity(day, ScheduleDay)
 	if err != nil {
 		ers = append(ers, err)
 	}
-	sche.Month, err = NewScheduleEntity(month, ScheduleMonth)
+	sche.month, err = NewScheduleEntity(month, ScheduleMonth)
 	if err != nil {
 		ers = append(ers, err)
 	}
-	sche.DayOfWeek, err = NewScheduleEntity(dayOfWeek, ScheduleDayOfWeek)
+	sche.dayOfWeek, err = NewScheduleEntity(dayOfWeek, ScheduleDayOfWeek)
 	if err != nil {
 		ers = append(ers, err)
 	}
@@ -70,13 +94,13 @@ func newSchedule(raw string, min, hour, day, month, dayOfWeek string) (sche *Sch
 }
 
 func (sche *Schedule) Match(t time.Time) bool {
-	if !sche.Minute.Match(t.Minute()) || !sche.Hour.Match(t.Hour()) || !sche.Month.Match(int(t.Month())) {
+	if !sche.minute.Match(t.Minute()) || !sche.hour.Match(t.Hour()) || !sche.month.Match(int(t.Month())) {
 		return false
 	}
-	if sche.DayOfWeek.Raw != "*" {
-		if sche.DayOfWeek.Match(int(t.Weekday())) {
+	if sche.dayOfWeek.raw != "*" {
+		if sche.dayOfWeek.Match(int(t.Weekday())) {
 			return true
 		}
 	}
-	return sche.Day.Match(t.Day())
+	return sche.day.Match(t.Day())
 }

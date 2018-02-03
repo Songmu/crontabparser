@@ -70,11 +70,11 @@ func TestNewJob(t *testing.T) {
 				t.Errorf("invalid command. out=%q, expect=%q", j.Command(), tc.Command)
 			}
 			outSche := [5]string{
-				j.Schedule().Minute().Raw(),
-				j.Schedule().Hour().Raw(),
-				j.Schedule().Day().Raw(),
-				j.Schedule().Month().Raw(),
-				j.Schedule().DayOfWeek().Raw(),
+				j.Schedule().minute.Raw(),
+				j.Schedule().hour.Raw(),
+				j.Schedule().day.Raw(),
+				j.Schedule().month.Raw(),
+				j.Schedule().dayOfWeek.Raw(),
 			}
 			if !reflect.DeepEqual(outSche, tc.Schedule) {
 				t.Errorf("invalid schedule.\n   out: %v\nexpect: %v", outSche, tc.Schedule)

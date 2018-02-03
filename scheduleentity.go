@@ -8,26 +8,26 @@ import (
 	"strings"
 )
 
-type ScheduleEntity struct {
+type scheduleEntity struct {
 	raw string
-	typ ScheduleType
+	typ scheduleType
 
 	expanded []int
 }
 
-func (se *ScheduleEntity) Raw() string {
+func (se *scheduleEntity) Raw() string {
 	return se.raw
 }
 
-func (se *ScheduleEntity) Type() ScheduleType {
+func (se *scheduleEntity) Type() scheduleType {
 	return se.typ
 }
 
-func (se *ScheduleEntity) Expanded() []int {
+func (se *scheduleEntity) Expanded() []int {
 	return se.expanded
 }
 
-func (se *ScheduleEntity) Match(num int) bool {
+func (se *scheduleEntity) Match(num int) bool {
 	if se == nil {
 		return false
 	}
@@ -39,15 +39,15 @@ func (se *ScheduleEntity) Match(num int) bool {
 	return false
 }
 
-//go:generate stringer -type=ScheduleType -trimprefix Schedule
-type ScheduleType int
+//go:generate stringer -type=scheduleType -trimprefix Schedule
+type scheduleType int
 
 const (
-	ScheduleMinute ScheduleType = iota
-	ScheduleHour
-	ScheduleDay
-	ScheduleMonth
-	ScheduleDayOfWeek
+	scheduleMinute scheduleType = iota
+	scheduleHour
+	scheduleDay
+	scheduleMonth
+	scheduleDayOfWeek
 )
 
 type entityParam struct {
@@ -55,28 +55,28 @@ type entityParam struct {
 	Aliases []string
 }
 
-var entityParams = map[ScheduleType]entityParam{
-	ScheduleMinute: {
+var entityParams = map[scheduleType]entityParam{
+	scheduleMinute: {
 		Range: [2]int{0, 59},
 	},
-	ScheduleHour: {
+	scheduleHour: {
 		Range: [2]int{0, 23},
 	},
-	ScheduleDay: {
+	scheduleDay: {
 		Range: [2]int{1, 31},
 	},
-	ScheduleMonth: {
+	scheduleMonth: {
 		Range:   [2]int{1, 12},
 		Aliases: []string{"", "jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec"},
 	},
-	ScheduleDayOfWeek: {
+	scheduleDayOfWeek: {
 		Range:   [2]int{0, 7},
 		Aliases: []string{"sun", "mon", "tue", "wed", "thu", "fri", "sat"},
 	},
 }
 
-func newScheduleEntity(raw string, st ScheduleType) (*ScheduleEntity, error) {
-	se := &ScheduleEntity{
+func newScheduleEntity(raw string, st scheduleType) (*scheduleEntity, error) {
+	se := &scheduleEntity{
 		raw: raw,
 		typ: st,
 	}
@@ -87,7 +87,7 @@ func newScheduleEntity(raw string, st ScheduleType) (*ScheduleEntity, error) {
 	return se, nil
 }
 
-func (se *ScheduleEntity) init() error {
+func (se *scheduleEntity) init() error {
 	ep, ok := entityParams[se.typ]
 	if !ok {
 		return fmt.Errorf("no entity param setting for %s", se.typ)
@@ -137,7 +137,7 @@ func (se *ScheduleEntity) init() error {
 		}
 	}
 
-	if se.typ == ScheduleDayOfWeek {
+	if se.typ == scheduleDayOfWeek {
 		hasSun := false
 		for _, v := range expanded {
 			if v == 7 {

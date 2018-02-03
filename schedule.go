@@ -17,38 +17,19 @@ var definitions = map[string][5]string{
 }
 
 type Schedule struct {
-	raw       string
-	minute    *ScheduleEntity
-	hour      *ScheduleEntity
-	day       *ScheduleEntity
-	month     *ScheduleEntity
-	dayOfWeek *ScheduleEntity
+	raw string
+
+	minute    *scheduleEntity
+	hour      *scheduleEntity
+	day       *scheduleEntity
+	month     *scheduleEntity
+	dayOfWeek *scheduleEntity
 
 	warnings []string
 }
 
 func (sche *Schedule) Raw() string {
 	return sche.raw
-}
-
-func (sche *Schedule) Minute() *ScheduleEntity {
-	return sche.minute
-}
-
-func (sche *Schedule) Hour() *ScheduleEntity {
-	return sche.hour
-}
-
-func (sche *Schedule) Day() *ScheduleEntity {
-	return sche.day
-}
-
-func (sche *Schedule) Month() *ScheduleEntity {
-	return sche.month
-}
-
-func (sche *Schedule) DayOfWeek() *ScheduleEntity {
-	return sche.dayOfWeek
 }
 
 func ParseSchedule(raw string) (sche *Schedule, err error) {
@@ -74,23 +55,23 @@ func newSchedule(raw string, min, hour, day, month, dayOfWeek string) (*Schedule
 	sche := &Schedule{}
 	sche.raw = raw
 	var ers errors
-	sche.minute, err = newScheduleEntity(min, ScheduleMinute)
+	sche.minute, err = newScheduleEntity(min, scheduleMinute)
 	if err != nil {
 		ers = append(ers, err)
 	}
-	sche.hour, err = newScheduleEntity(hour, ScheduleHour)
+	sche.hour, err = newScheduleEntity(hour, scheduleHour)
 	if err != nil {
 		ers = append(ers, err)
 	}
-	sche.day, err = newScheduleEntity(day, ScheduleDay)
+	sche.day, err = newScheduleEntity(day, scheduleDay)
 	if err != nil {
 		ers = append(ers, err)
 	}
-	sche.month, err = newScheduleEntity(month, ScheduleMonth)
+	sche.month, err = newScheduleEntity(month, scheduleMonth)
 	if err != nil {
 		ers = append(ers, err)
 	}
-	sche.dayOfWeek, err = newScheduleEntity(dayOfWeek, ScheduleDayOfWeek)
+	sche.dayOfWeek, err = newScheduleEntity(dayOfWeek, scheduleDayOfWeek)
 	if err != nil {
 		ers = append(ers, err)
 	}

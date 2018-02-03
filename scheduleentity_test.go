@@ -9,56 +9,56 @@ func TestNewScheduleEntity(t *testing.T) {
 	testCases := []struct {
 		Name  string
 		Input string
-		Type  ScheduleType
+		Type  scheduleType
 
 		Expanded []int
 	}{
 		{
 			Name:  "minutes: asterisk and increments",
 			Input: "*/15",
-			Type:  ScheduleMinute,
+			Type:  scheduleMinute,
 
 			Expanded: []int{0, 15, 30, 45},
 		},
 		{
 			Name:  "hour: multi range",
 			Input: "2,3-7/2,5",
-			Type:  ScheduleHour,
+			Type:  scheduleHour,
 
 			Expanded: []int{2, 3, 5, 7},
 		},
 		{
 			Name:  "day: first day of month",
 			Input: "1",
-			Type:  ScheduleDay,
+			Type:  scheduleDay,
 
 			Expanded: []int{1},
 		},
 		{
 			Name:  "month: asterisk",
 			Input: "*",
-			Type:  ScheduleMonth,
+			Type:  scheduleMonth,
 
 			Expanded: []int{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12},
 		},
 		{
 			Name:  "month: aliase range with increments",
 			Input: "FEB-Sep/3,10-12",
-			Type:  ScheduleMonth,
+			Type:  scheduleMonth,
 
 			Expanded: []int{2, 5, 8, 10, 11, 12},
 		},
 		{
 			Name:  "day_of_week: multi",
 			Input: "3,*/2",
-			Type:  ScheduleDayOfWeek,
+			Type:  scheduleDayOfWeek,
 
 			Expanded: []int{0, 2, 3, 4, 6},
 		},
 		{
 			Name:  "day_of_week: aliases",
 			Input: "mon-Tue,4",
-			Type:  ScheduleDayOfWeek,
+			Type:  scheduleDayOfWeek,
 
 			Expanded: []int{1, 2, 4},
 		},
@@ -78,22 +78,22 @@ func TestNewScheduleEntity(t *testing.T) {
 	invalidTestCases := []struct {
 		Name  string
 		Input string
-		Type  ScheduleType
+		Type  scheduleType
 	}{
 		{
 			Name:  "invalid month",
 			Input: "0",
-			Type:  ScheduleMonth,
+			Type:  scheduleMonth,
 		},
 		{
 			Name:  "invalid range of days",
 			Input: "10-32/3",
-			Type:  ScheduleDay,
+			Type:  scheduleDay,
 		},
 		{
 			Name:  "day_of_week: invalid aliase",
 			Input: "mon-Tuo",
-			Type:  ScheduleDayOfWeek,
+			Type:  scheduleDayOfWeek,
 		},
 	}
 	for _, tc := range invalidTestCases {

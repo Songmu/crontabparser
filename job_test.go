@@ -65,7 +65,9 @@ func TestParseJob(t *testing.T) {
 			if j.Err() != nil {
 				t.Errorf("error should be nil but: %s", j.Err())
 			}
-
+			if j.Stdin() != nil {
+				t.Errorf("something went wrong")
+			}
 			if tc.User != j.User() {
 				t.Errorf("invalid user. out=%q, expect=%q", j.User(), tc.User)
 			}
@@ -126,9 +128,9 @@ func TestParseCommand(t *testing.T) {
 			Command: `/path/to/cmd > /path/to/log.$(date +%Y%m%d) 2>&1`,
 		},
 		{
-			Name:    "ended with backslash",
-			Input:   `/path/to/cmd \`,
-			Command: `/path/to/cmd \`,
+			Name:    "with backslashes which not for escaping",
+			Input:   `/path/to/cmd\ \`,
+			Command: `/path/to/cmd\ \`,
 		},
 		{
 			Name:    "It's 10pm",

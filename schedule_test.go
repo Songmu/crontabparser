@@ -80,6 +80,9 @@ func TestParseSchedule(t *testing.T) {
 			if err != nil {
 				t.Errorf("error should be nil but: %s", err)
 			}
+			if sche.Raw() != tc.Input {
+				t.Errorf("result of raw() is strange. out: %s, expect: %s", sche.Raw(), tc.Input)
+			}
 			for _, ti := range tc.Mathes {
 				if !sche.Match(ti) {
 					t.Errorf("schedule(%v) does not match %v", sche, ti)
@@ -89,6 +92,36 @@ func TestParseSchedule(t *testing.T) {
 				if sche.Match(ti) {
 					t.Errorf("schedule(%v) unintentionally matches %v", sche, ti)
 				}
+			}
+		})
+	}
+
+	errTestCases := []struct {
+		Name  string
+		Input string
+	}{
+		{
+			Name:  "completely invalid",
+			Input: "invalid",
+		},
+		{
+			Name:  "invalid definition",
+			Input: "@invalid",
+		},
+		{
+			Name:  "invalid",
+			Input: "invalid",
+		},
+		{
+			Name:  "invalid entities",
+			Input: "61 25 0 0 SAN",
+		},
+	}
+	for _, tc := range errTestCases {
+		t.Run(tc.Name, func(t *testing.T) {
+			_, err := ParseSchedule(tc.Input)
+			if err == nil {
+				t.Errorf("error should be occurred but nil")
 			}
 		})
 	}

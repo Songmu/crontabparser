@@ -42,7 +42,7 @@ func ParseSchedule(raw string) (sche *Schedule, err error) {
 			return nil, fmt.Errorf("invalid schedule definition: %q", raw)
 		}
 		if raw == "@reboot" {
-			return &Schedule{}, nil
+			return &Schedule{raw: raw}, nil
 		}
 		return newSchedule(raw, def[0], def[1], def[2], def[3], def[4])
 	}

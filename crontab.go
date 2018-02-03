@@ -2,6 +2,7 @@ package checron
 
 import (
 	"bufio"
+	"bytes"
 	"fmt"
 	"io"
 	"regexp"
@@ -34,11 +35,15 @@ type Crontab struct {
 }
 
 func Parse(rdr io.Reader, hasUser bool) (*Crontab, error) {
+	buf := &bytes.Buffer{}
 	ct := &Crontab{env: make(map[string]string)}
 	scr := bufio.NewScanner(rdr)
 	for scr.Scan() {
-		ct.entries = append(ct.entries, ct.parseLine(scr.Text(), hasUser))
+		line := scr.Text()
+		buf.WriteString(line + "\n")
+		ct.entries = append(ct.entries, ct.parseLine(line, hasUser))
 	}
+	ct.raw = buf.String()
 	return ct, scr.Err()
 }
 

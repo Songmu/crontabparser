@@ -15,8 +15,7 @@ func TestParse(t *testing.T) {
 	}{
 		{
 			Name: "normal",
-			Input: `
-# comment
+			Input: `# comment
 HOGE=FUGA
 * * * * * perl
   
@@ -33,8 +32,7 @@ HOGE=FUGA
 		},
 		{
 			Name: "has user",
-			Input: `
- # comment
+			Input: ` # comment
  HOGE=FUGA
  * * * * * songmu perl
   
@@ -52,8 +50,7 @@ HOGE=FUGA
 		},
 		{
 			Name: "invlid schedule",
-			Input: `
-HOGE=FUGA
+			Input: `HOGE=FUGA
 * * * *R * perl
 `,
 			Expects: []Type{
@@ -64,8 +61,7 @@ HOGE=FUGA
 		},
 		{
 			Name: "invlid schedule definition",
-			Input: `
-HOGE=FUGA
+			Input: `HOGE=FUGA
 @hoge perl
 `,
 			Expects: []Type{
@@ -76,8 +72,7 @@ HOGE=FUGA
 		},
 		{
 			Name: "invalid with having user",
-			Input: `
-# comment
+			Input: `# comment
 HOGE=FUGA
 * * * * * perl
 `,
@@ -91,8 +86,7 @@ HOGE=FUGA
 		},
 		{
 			Name: "invalid env",
-			Input: `
- 'HOGE=FUGA
+			Input: ` 'HOGE=FUGA
 * * * * * perl
 `,
 			Expects: []Type{
@@ -103,7 +97,7 @@ HOGE=FUGA
 		},
 		{
 			Name:    "invalid line",
-			Input:   `invalid invalid`,
+			Input:   "invalid invalid\n",
 			Expects: []Type{TypeInvalid},
 			Valid:   false,
 		},
@@ -111,9 +105,12 @@ HOGE=FUGA
 
 	for _, tc := range testCases {
 		t.Run(tc.Name, func(t *testing.T) {
-			ct, err := Parse(strings.NewReader(strings.TrimPrefix(tc.Input, "\n")), tc.HasUser)
+			ct, err := Parse(strings.NewReader(tc.Input), tc.HasUser)
 			if err != nil {
 				t.Fatalf("failed to parse: %s", err)
+			}
+			if ct.Raw() != tc.Input {
+				t.Errorf("something went wrong: %s", ct.Raw())
 			}
 			if (ct.Err() != nil) == tc.Valid {
 				t.Errorf("something went wrong: %#v, %s", ct, ct.Err())

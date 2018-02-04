@@ -1,4 +1,4 @@
-package checron
+package crontabparser
 
 // Comment cron line
 type Comment struct {

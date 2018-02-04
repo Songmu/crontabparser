@@ -1,4 +1,4 @@
-package checron
+package crontabparser
 
 import "testing"
 

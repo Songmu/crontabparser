@@ -1,4 +1,4 @@
-package checron
+package crontabparser
 
 const version = "0.0.1"
 

@@ -1,5 +1,5 @@
 # CURRENT_REVISION = $(shell git rev-parse --short HEAD)
-# BUILD_LDFLAGS = "-X github.com/Songmu/checron.revision=$(CURRENT_REVISION)"
+# BUILD_LDFLAGS = "-X github.com/Songmu/crontabparser.revision=$(CURRENT_REVISION)"
 ifdef update
   u=-u
 endif
@@ -29,12 +29,12 @@ cover: devel-deps
 	goveralls
 
 # build: deps
-# 	go build -ldflags=$(BUILD_LDFLAGS) ./cmd/checron
+# 	go build -ldflags=$(BUILD_LDFLAGS) ./cmd/crontabparser
 #
 # crossbuild: devel-deps
 # 	$(eval ver = $(shell gobump show -r))
 # 	goxz -pv=v$(ver) -build-ldflags=$(BUILD_LDFLAGS) \
-# 	  -d=./dist/v$(ver) ./cmd/checron
+# 	  -d=./dist/v$(ver) ./cmd/crontabparser
 
 release:
 	_tools/releng
